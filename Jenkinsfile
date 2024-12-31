@@ -2,31 +2,27 @@ pipeline {
     agent any
 
     tools {
-        // Remplacez par les noms exacts configurés dans "Global Tool Configuration"
-        jdk 'Java_17'
-        maven 'Maven_3.8.6'
+        jdk 'jdk-17'          // Changez ce nom pour correspondre à votre configuration réelle
+        maven 'maven-3.6'     // Changez ce nom pour correspondre à votre configuration réelle
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Cloner le dépôt Git
                 git branch: 'main',
-                    credentialsId: 'votre-credential-id', // Si repo privé, sinon retirez cette ligne
-                    url: 'https://github.com/mon-utilisateur/mon-repo.git'
+                    credentialsId: 'votre-credential-id',  // Retirez si repo public
+                    url: 'https://github.com/KhalilBerkani/prjIlyass'
             }
         }
 
         stage('Build') {
             steps {
-                // Compile l'application sans exécuter les tests
                 sh 'mvn clean install -DskipTests'
             }
         }
 
         stage('Test') {
             steps {
-                // Exécute les tests unitaires et d'intégration
                 sh 'mvn test'
             }
         }
@@ -34,7 +30,6 @@ pipeline {
 
     post {
         always {
-            // Archiver les rapports de tests pour affichage dans Jenkins
             junit '**/target/surefire-reports/*.xml'
         }
         success {
