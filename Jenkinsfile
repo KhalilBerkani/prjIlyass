@@ -12,7 +12,7 @@ pipeline {
                 // Récupérer le code source depuis Git
                 git branch: 'main',
                     credentialsId: 'mon-credential-id',  // Identifiant Jenkins si repo privé
-                    url: 'https://github.com/mon-user/mon-repo.git'
+                    url: 'https://github.com/KhalilBerkani/prjIlyass'
             }
         }
 
