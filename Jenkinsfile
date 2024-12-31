@@ -1,32 +1,31 @@
 pipeline {
     agent any
 
-    // Définir les outils (versions de Java et Maven doivent être préconfigurées dans Jenkins)
     tools {
-        jdk 'Java_17'          // Nom de l'installation JDK configurée dans Jenkins
+        jdk   'Java_17'        // Nom du JDK configuré dans Jenkins
         maven 'Maven_3.8.6'    // Nom de l'installation Maven configurée dans Jenkins
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Récupération du code source depuis Git
+                // Récupérer le code source depuis Git
                 git branch: 'main',
-                    credentialsId: 'git-credentials-id',  // À remplacer par votre credentialsId Jenkins
-                    url: 'https://github.com/KhalilBerkani/prjIlyass'  // À remplacer par l’URL de votre repo
+                    credentialsId: 'mon-credential-id',  // Identifiant Jenkins si repo privé
+                    url: 'https://github.com/mon-user/mon-repo.git'
             }
         }
 
         stage('Build') {
             steps {
-                // Compiler le projet sans exécuter les tests
+                // Compiler le projet (vous pouvez retirer -DskipTests si vous voulez exécuter les tests ici)
                 sh 'mvn clean install -DskipTests'
             }
         }
 
         stage('Test') {
             steps {
-                // Lancer les tests unitaires
+                // Exécuter les tests unitaires
                 sh 'mvn test'
             }
         }
@@ -34,14 +33,14 @@ pipeline {
 
     post {
         always {
-            // Publier les rapports de test JUnit afin d'avoir la vue de test dans Jenkins
+            // Archive les rapports de tests JUnit
             junit '**/target/surefire-reports/*.xml'
         }
         success {
-            echo "Le build et les tests unitaires ont été exécutés avec succès."
+            echo 'Build et tests réussis !'
         }
         failure {
-            echo "Le build ou les tests unitaires ont échoué."
+            echo 'Build ou tests en échec.'
         }
     }
 }
