@@ -2,30 +2,31 @@ pipeline {
     agent any
 
     tools {
-        jdk   'Java_17'        // Nom du JDK configuré dans Jenkins
-        maven 'Maven_3.8.6'    // Nom de l'installation Maven configurée dans Jenkins
+        // Remplacez par les noms exacts configurés dans "Global Tool Configuration"
+        jdk 'Java_17'
+        maven 'Maven_3.8.6'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Récupérer le code source depuis Git
+                // Cloner le dépôt Git
                 git branch: 'main',
-                    credentialsId: 'mon-credential-id',  // Identifiant Jenkins si repo privé
-                    url: 'https://github.com/KhalilBerkani/prjIlyass'
+                    credentialsId: 'votre-credential-id', // Si repo privé, sinon retirez cette ligne
+                    url: 'https://github.com/mon-utilisateur/mon-repo.git'
             }
         }
 
         stage('Build') {
             steps {
-                // Compiler le projet (vous pouvez retirer -DskipTests si vous voulez exécuter les tests ici)
+                // Compile l'application sans exécuter les tests
                 sh 'mvn clean install -DskipTests'
             }
         }
 
         stage('Test') {
             steps {
-                // Exécuter les tests unitaires
+                // Exécute les tests unitaires et d'intégration
                 sh 'mvn test'
             }
         }
@@ -33,14 +34,14 @@ pipeline {
 
     post {
         always {
-            // Archive les rapports de tests JUnit
+            // Archiver les rapports de tests pour affichage dans Jenkins
             junit '**/target/surefire-reports/*.xml'
         }
         success {
-            echo 'Build et tests réussis !'
+            echo 'Build et tests réussis.'
         }
         failure {
-            echo 'Build ou tests en échec.'
+            echo 'Le build ou les tests ont échoué.'
         }
     }
 }
