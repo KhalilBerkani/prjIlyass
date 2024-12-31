@@ -13,20 +13,23 @@ pipeline {
     }
 
     stages {
-        stage('Checkout Code') {
+        // Étape Checkout (Clonage du code)
+        stage('Checkout SCM') {
             steps {
-                echo 'Cloning project from GitHub...'
+                echo 'Checking out the project from SCM...'
                 git branch: 'main', url: "${env.GIT_REPO}"
             }
         }
 
-        stage('Build Project') {
+        // Étape Build (Construction du projet avec Maven)
+        stage('Build') {
             steps {
                 echo 'Building the project using Maven...'
                 sh 'mvn clean package'
             }
         }
 
+        // Étape Run Tests (Exécution des tests Maven)
         stage('Run Tests') {
             steps {
                 echo 'Running Maven tests...'
@@ -34,6 +37,7 @@ pipeline {
             }
         }
 
+        // Étape Build Docker Image (Construction de l'image Docker)
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
@@ -43,6 +47,7 @@ pipeline {
             }
         }
 
+        // Étape Push Docker Image (Pousser l'image Docker vers DockerHub)
         stage('Push Docker Image') {
             steps {
                 echo 'Pushing Docker image to DockerHub...'
@@ -56,12 +61,13 @@ pipeline {
         }
     }
 
+    // Post Actions (Actions après le pipeline)
     post {
         success {
-            echo 'Pipeline executed successfully!'
+            echo 'Pipeline executed successfully!' // Succès
         }
         failure {
-            echo 'Pipeline failed. Please check the logs.'
+            echo 'Pipeline failed. Please check the logs.' // Échec
         }
     }
 }
