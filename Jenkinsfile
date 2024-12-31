@@ -1,42 +1,67 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_USERNAME = 'berkanikhalil'
+        DOCKER_IMAGE_NAME = 'prjilyass'
+        GIT_REPO = 'https://github.com/KhalilBerkani/prjIlyass'
+        MAVEN_HOME = tool 'Maven 3.8.7' 
+    }
+
     tools {
-        jdk 'jdk-17'          // Changez ce nom pour correspondre à votre configuration réelle
-        maven 'maven-3.6'     // Changez ce nom pour correspondre à votre configuration réelle
+        maven 'Maven 3.8.7' 
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
-                git branch: 'main',
-                    credentialsId: 'votre-credential-id',  // Retirez si repo public
-                    url: 'https://github.com/KhalilBerkani/prjIlyass'
+                echo 'Cloning project from GitHub...'
+                git branch: 'main', url: "${env.GIT_REPO}"
             }
         }
 
-        stage('Build') {
+        stage('Build Project') {
             steps {
-                sh 'mvn clean install -DskipTests'
+                echo 'Building the project using Maven...'
+                sh 'mvn clean package'
             }
         }
 
-        stage('Test') {
+        stage('Run Tests') {
             steps {
+                echo 'Running Maven tests...'
                 sh 'mvn test'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                echo 'Building Docker image...'
+                sh '''
+                docker build -t ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:latest .
+                '''
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                echo 'Pushing Docker image to DockerHub...'
+                withCredentials([string(credentialsId: 'docker-hub-password', variable: 'DOCKER_PASSWORD')]) {
+                    sh '''
+                    echo $DOCKER_PASSWORD | docker login -u ${DOCKER_USERNAME} --password-stdin
+                    docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:latest
+                    '''
+                }
             }
         }
     }
 
     post {
-        always {
-            junit '**/target/surefire-reports/*.xml'
-        }
         success {
-            echo 'Build et tests réussis.'
+            echo 'Pipeline executed successfully!'
         }
         failure {
-            echo 'Le build ou les tests ont échoué.'
+            echo 'Pipeline failed. Please check the logs.'
         }
     }
 }
